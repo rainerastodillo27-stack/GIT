@@ -1,0 +1,176 @@
+html_template = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inventory & Sales Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<nav class="navbar navbar-dark bg-primary mb-4">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">Inventory + Sales Dashboard</span>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- Tabs Buttons -->
+  <ul class="nav nav-tabs mb-4" id="dashboardTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="inventory-tab" data-bs-toggle="tab" data-bs-target="#inventoryTab" type="button" role="tab">Inventory</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="sales-tab" data-bs-toggle="tab" data-bs-target="#salesTab" type="button" role="tab">Sales</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#reportTab" type="button" role="tab">Generate Report</button>
+    </li>
+  </ul>
+
+  <!-- Tab Content -->
+  <div class="tab-content" id="dashboardTabsContent">
+
+    <!-- Inventory Tab -->
+    <div class="tab-pane fade show active" id="inventoryTab" role="tabpanel">
+      <h4 class="mb-3">Current Inventory</h4>
+      <div class="table-responsive mb-5">
+        <table class="table table-striped table-bordered">
+          <thead class="table-dark">
+            <tr>
+              <th>Item Code</th>
+              <th>Item Name</th>
+              <th>Quantity on Hand</th>
+              <th>Last Sale Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in inventory_list %}
+            <tr>
+              <td>{{ it.item_code }}</td>
+              <td>{{ it.item_name }}</td>
+              <td>{{ it.quantity_on_hand }}</td>
+              <td>{{ it.last_sale_date }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Sales Tab -->
+    <div class="tab-pane fade" id="salesTab" role="tabpanel">
+      <h4>Sales Records</h4>
+      <p class="text-muted">🛠️ You can add logic here to display or input sales records.</p>
+      <!-- Optional: Add form here to input sample sale -->
+    </div>
+
+    <!-- Report Tab -->
+    <div class="tab-pane fade" id="reportTab" role="tabpanel">
+      <h4 class="mb-3">Generate Excess / Obsolete Report</h4>
+      <div class="card mb-4">
+        <div class="card-body">
+          <form id="reportForm">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <label class="form-label">Start Date</label>
+                <input type="date" name="startDate" id="startDate" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">End Date</label>
+                <input type="date" name="endDate" id="endDate" class="form-control">
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Cutoff Date</label>
+                <input type="date" name="cutoffDate" id="cutoffDate" class="form-control">
+              </div>
+            </div>
+            <div class="mt-3">
+              <button type="button" class="btn btn-success" onclick="generateReport()">Generate Report</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="reportResult" style="display:none;">
+        <h5>Excess Inventory</h5>
+        <div id="excessSection"></div>
+
+        <h5 class="mt-4">Obsolete Inventory</h5>
+        <div id="obsoleteSection"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+async function generateReport() {
+  const startDate = document.getElementById("startDate").value;
+  const endDate = document.getElementById("endDate").value;
+  const cutoffDate = document.getElementById("cutoffDate").value;
+
+  if (!startDate || !endDate || !cutoffDate) {
+    alert("⚠️ Please fill in all fields!");
+    return;
+  }
+
+  const resp = await fetch("/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ startDate, endDate, cutoffDate })
+  });
+  const data = await resp.json();
+
+  document.getElementById("reportResult").style.display = "block";
+
+  // Excess
+  let htmlEx = "";
+  if (data.excess.length > 0) {
+    htmlEx = `<table class="table table-bordered">
+      <thead><tr>
+        <th>Item Code</th><th>Item Name</th><th>On Hand</th><th>Sold</th>
+      </tr></thead>
+      <tbody>`;
+    data.excess.forEach(i => {
+      htmlEx += `<tr>
+        <td>${i.item_code}</td>
+        <td>${i.item_name}</td>
+        <td>${i.on_hand}</td>
+        <td>${i.sold}</td>
+      </tr>`;
+    });
+    htmlEx += `</tbody></table>`;
+  } else {
+    htmlEx = `<p class="text-muted">No excess items found.</p>`;
+  }
+  document.getElementById("excessSection").innerHTML = htmlEx;
+
+  // Obsolete
+  let htmlOb = "";
+  if (data.obsolete.length > 0) {
+    htmlOb = `<table class="table table-bordered">
+      <thead><tr>
+        <th>Item Code</th><th>Item Name</th><th>On Hand</th><th>Last Sale Date</th>
+      </tr></thead>
+      <tbody>`;
+    data.obsolete.forEach(i => {
+      htmlOb += `<tr>
+        <td>${i.item_code}</td>
+        <td>${i.item_name}</td>
+        <td>${i.on_hand}</td>
+        <td>${i.last_sale}</td>
+      </tr>`;
+    });
+    htmlOb += `</tbody></table>`;
+  } else {
+    htmlOb = `<p class="text-muted">No obsolete items found.</p>`;
+  }
+  document.getElementById("obsoleteSection").innerHTML = htmlOb;
+}
+</script>
+</body>
+</html>
+"""

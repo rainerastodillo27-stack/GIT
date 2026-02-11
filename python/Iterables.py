@@ -1,0 +1,26 @@
+#Iterable = An object/collection that can retrun its elements one at a time,
+#allowing it tobe iterated over in a loop
+
+#-----List----
+#numbers = [1, 2 ,3 ,4 ,5]
+
+#for number in reversed(numbers):
+#    print(number, end ="-")
+
+
+
+#---sets-----
+#fruits = {"apple", "orange", "banana", "coconut"}
+#for fruit in fruits:
+#    print(fruit)
+
+
+#----string-----
+#name = "Rainer"
+#for character in name:
+#    print(character, end=" ")
+
+#-----dictionaries-----
+my_dictionary = {"A": 1, "B":2, "C":3}
+for key, value in my_dictionary.items():
+    print(f"{key} = {value}")
