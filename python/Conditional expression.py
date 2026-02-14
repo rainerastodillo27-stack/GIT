@@ -11,7 +11,7 @@ temp = 30
 use_role = "admin"
 
 #print("Positive" if num > 0 else "Negative")
-#esult = "EVEN" if num % 2 == 0 else "ODD"
+#result = "EVEN" if num % 2 == 0 else "ODD"
 #min_num =A if A < B else B
 #status = "Adult" if age >= 18 else "Minor"
 #weather = "HOT" if temp > 20 else "COLD"
