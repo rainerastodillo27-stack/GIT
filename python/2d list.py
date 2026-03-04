@@ -1,7 +1,7 @@
 #2D list
 
 #fruits = ["apple", "orange", "banana", "coconut"]
-#vegetables = ["patula", "carrots", "potatoees"]
+#vegetables = ["patula", "carrots", "potatoes"]
 #meats = ["chicken", "pork", "fish"]
 
 
@@ -16,7 +16,7 @@
 
 
 groceries = [["apple", "orange", "banana", "coconut"],
-            ["patula", "carrots", "potatoees"],
+            ["patula", "carrots", "potatoes"],
             ["chicken", "pork", "fish"]]
 
 
