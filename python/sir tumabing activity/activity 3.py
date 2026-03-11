@@ -4,6 +4,7 @@ print("=== LOGIN ===")
 correct_username = "rainer"
 correct_password = "090909"
 
+#----Students Input-------
 username = input("Enter username: ")
 password = input("Enter password: ")
 
